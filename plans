@@ -45,3 +45,5 @@ validations
     accepted fields
     banned fields
     deletes must include pid,
+
+tests

@@ -22,6 +22,7 @@ class FieldValidator
         $this->validateTable($table);
         $this->validateWhere($where);
         $this->validateFieldsExist($table, $fields);
+        $this->screenBannedFields($table, $fields);
     }
 
     public function validateInsertFields($table, $fields)
@@ -29,6 +30,7 @@ class FieldValidator
         $this->validateTable($table);
         $this->validateFieldsExist($table, $fields);
         $this->validateRequiredFields($table, $fields);
+        $this->screenBannedFields($table, $fields);
     }
 
     public function validateDeleteFields($table, $where)
@@ -42,6 +44,17 @@ class FieldValidator
         $this->validateFieldsExist($table, $where);
     }
 
+    public function validateSelectPrimariesFields ($table, $patients, $last_sync) {
+        $this->validateTable($table);
+        if ($this->mapper->getAutoUpdateField($table) == null)
+            throw new NoAutoUpdateFieldException($table);
+    }
+
+    public function validateSelectFields ($table, $patient_ids, $last_sync) {
+        $this->validateTable($table);
+        if (!gettype($patient_ids) == 'array')
+            throw new BadUnitFieldException('patient_ids');
+    }
 
     private function validateTable($table)
     {
@@ -69,48 +82,16 @@ class FieldValidator
 
     private function validateWhere($where)
     {
-        if (!in_array('pid', $where))
+        if (!in_array('pid', array_keys($where)))
             throw new MissingFieldException('pid');
     }
 
-    public function validateInput ($json) {
-        try {
-            $units = json_decode($json);
-        } catch (Exception $e) {
-            throw new BadInputException();
-        }
-        if (gettype($units) != "Array")
-            throw new BadInputException();
-
-        foreach ($units as $unit) {
-            $valid_sync = array('pull', 'push', 'auth');
-            if (!isset($unit['sync']))
-                throw new BadSyncTypeException("null");
-            if ( !in_array($unit['sync'], $valid_sync))
-                throw new BadSyncTypeException($unit['sync']);
-            $func = "validate" . ucfirst($unit['sync']) . "Unit";
-            $func();
-        }
-    }
-
-    private function validatePullUnit ($unit) {
-        $fields = array('patients', 'last_sync');
-        $this->validateUnitFields($unit, $fields);
-    }
-
-    private function validateAuthUnit ($unit) {
-        $fields = array('user', 'pass', 'client_id');
-        $this->validateUnitFields($unit, $fields);
-    }
-
-    private function validatePushUnit ($unit) {
-        if (!isset)
-    }
-
-    private function validateUnitFields ($unit, $fields) {
-        foreach($fields as $field) {
-            if (!in_array($field, $unit))
-                throw new MissingUnitFieldException('pull', $field);
+    private function screenBannedFields ($table, $fields) {
+        $update_field = $this->mapper->getAutoUpdateField($table);
+        $auto_increment = $this->mapper->getAutoIncrementField($table);
+        foreach($fields as $field => $value) {
+            if ($field == $update_field || $field == $auto_increment)
+                throw new InvalidFieldException($field);
         }
     }
 

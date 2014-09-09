@@ -24,12 +24,13 @@ class FieldMapper
     // @throws  NoTableException
     public function getFields($table)
     {
-        if (isset($fields[$table]))
-            $columns = $fields[$table];
+        if (isset($this->fields[$table])) {
+            $columns = $this->fields[$table];
+        }
         else {
             try {
                 $columns = $this->capsule->getConnection()->select("show columns from $table");
-                $fields[$table] = $columns;
+                $this->fields[$table] = $columns;
             } catch (PDOException $e) {
                 throw new NoTableException($table);
             }
@@ -85,4 +86,49 @@ class FieldMapper
         return false;
     }
 
+    public function getAutoUpdateField ($table) {
+        $columns = $this->getFields($table);
+        foreach($columns as $col) {
+            if (strpos($col['Extra'], 'on update') !== false)
+                return $col['Field'];
+        }
+        return null;
+    }
+
+    // very expensive operation, needs caching
+    public function getTablesWithPid () {
+        $tables = array();
+        foreach ($this->getTables() as $table) {
+            if ($this->hasPidField($table))
+                array_push($tables, $table);
+        }
+        return $tables;
+    }
+
+    public function getTables () {
+        $tables = array();
+        $result = $this->capsule->getConnection()->select("show tables");
+        foreach ($result as $row) {
+            array_push($tables, $row['Tables_in_arogita']);
+        }
+        return $tables;
+    }
+
+    public function getAutoIncrementField ($table) {
+        $columns = $this->getFields($table);
+        foreach ($columns as $col) {
+            if (strpos($col['Extra'], 'auto_increment') !== false)
+                return $col['Field'];
+        }
+        return null;
+    }
+
+    public function getPrimaryKeyField ($table) {
+        $columns = $this->getFields($table);
+        foreach ($columns as $col) {
+            if ($col['Key'] == 'PRI')
+                return $col['Field'];
+        }
+        return null;
+    }
 } 

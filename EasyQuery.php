@@ -19,23 +19,24 @@ class EasyQuery {
         $this->capsule = $capsule;
         $this->mapper = $mapper;
         $this->validator = $validator;
+        date_default_timezone_set('Asia/Kolkata');
     }
 
     public function upsert ($table, array $fields, array $where = array()) {
         // see if it's valid for insertion
         try {
             $this->validator->validateInsertFields($table, $fields);
-            $this->capsule->table($table)->insert($fields);
+            return $this->capsule->table($table)->insert($fields);
         } catch (MissingFieldException $e) {
             // continue to update
         } catch (PDOException $e) {
-            if (!$e->getCode() == "23000")
+            if (!$e->getCode() == "23000")  // not a duplicate key
                 throw $e;
         } // all other exceptions are thrown
 
         // default where clause
-        if (count($where) == 0)
-            $where = array('pid', $fields['pid']);
+        if (count($where) == 0 && isset($fields['pid']))
+            $where = array('pid' => $fields['pid']);
 
         // see if it's valid for update
         $this->validator->validateUpdateFields($table, $fields, $where);
@@ -52,6 +53,8 @@ class EasyQuery {
     // @throws MissingFieldException
     public function delete ($table, array $where) {
         $this->validator->validateDeleteFields($table, $where);
+        if ($this->count($table, $where) > 1)
+            throw new BadQueryException($where);
         return $this->constructQuery($table, $where)->delete();
     }
 
@@ -62,19 +65,38 @@ class EasyQuery {
         return $this->constructQuery($table, $where)->count();
     }
 
+    public function selectPrimaries ($table, array $patient_ids, $last_sync) {
+        $this->validator->validateSelectPrimariesFields($table, $patient_ids, $last_sync);
+        $update_field = $this->mapper->getAutoUpdateField($table);
+        $primary_field = $this->mapper->getPrimaryKeyField($table);
+        $date = new DateTime();
+        $date->setTimestamp($last_sync);
+        return $this->capsule->table($table)
+            ->whereIn('pid', $patient_ids)
+            ->where($update_field, '>', $date->format('Y-m-d H:i:s'))
+            ->get(array($primary_field));
+    }
+
+    public function authenticate ($user, $pass) {
+        $count = $this->capsule->table('users')
+            ->where('username', '=', $user)
+            ->where('password', '=', $pass)
+            ->where('authorized', '=', 1)
+            ->count();
+        if ($count == 1)
+            return true;
+        return false;
+    }
+
+    public function select ($table, $where) {
+        return $this->constructQuery($table, $where)->get();
+    }
+
     private function constructQuery ($table, $where) {
         $query = $this->capsule->table($table);
         foreach ($where as $field => $value) {
             $query = $query->where($field, '=', $value);
         }
         return $query;
-    }
-
-    private function handlePDOException (PDOException $e, $table) {
-        if ($e->getCode() == "42S02")
-            throw new NoTableException($table);
-        if ($e->getCode() == "42S22") {
-            throw new InvalidFieldException('unspecified field');
-        }
     }
 } 
