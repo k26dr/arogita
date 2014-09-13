@@ -6,6 +6,8 @@
  * Time: 3:17 PM
  */
 
+echo "<br/>EasyQueryTest<br />";
+
 require_once("../database.php");
 require_once("../EasyQuery.php");
 require_once("helpers.php");
@@ -33,6 +35,7 @@ assert(count($query->selectPrimaries('lists', array(24, 25, 26, 65, 171, 185), $
 assert(count($query->selectPrimaries('lists', array(24, 25, 26, 65, 2, 7), $since)) == 10);
 assert(count($query->selectPrimaries('lists', array(24, 25, 26, 65, 35), $since)) == 11);
 assert(count($query->selectPrimaries('lists', array(24, 25, 26, 65, 35), time() + 1000)) == 0);
+assertException('$query->selectPrimaries("amc_misc_data", array(24, 25, 26, 65, 35), 0)', 114);
 $rows = $query->selectPrimaries('lists', array(24), 10);
 assert(count($rows) == 3);
 foreach ($rows as $row) {
@@ -47,6 +50,7 @@ assert(count($rows) == 1);
 assert($rows[0]['pid'] == 24);
 assert(count($rows[0]) > 20);
 assertException('$query->select("gobble", array())', 102);
+assertException('$query->select("patient_data", array("mname" => "johnson"))', 101);
 
 // upsert
 assertException('$query->upsert("gobble", array(), array())', 102);
@@ -55,6 +59,7 @@ assertException('$query->upsert("lists", array("pid" => 24, "gobble" => "gook"),
 assertException('$query->upsert("patient_data", array("id" => 24, "mname" => "Gyan", "pid" => 24))', 100);
 assertException('$query->upsert("patient_data", array("updated_on" => "2013-10-04", "mname" => "Gyan", "pid" => 24))', 100);
 assertException('$query->upsert("patient_data", array("mname" => "Gyan"))', 101);
+assertException('$query->upsert("billing", array("payer_id" => 123, "bill_process" => 0, "notecodes" => "tf"))', 101);
 
 // delete
 assertException('$query->delete("gobble", array())', 102);
@@ -71,11 +76,26 @@ $rows = $query->select("patient_data", array('pid' => 24));
 assert(count($rows) == 1);
 assert($rows[0]['pid'] == 24);
 assert($rows[0]['financial_review'] == $before_string);
+assert($rows[0]['updated_on'] != "0000-00-00 00:00:00");
 $after = time() + 1;
 $rows = $query->selectPrimaries("patient_data", array(24), $after);
 assert(count($rows) == 0);
 $rows = $query->selectPrimaries("patient_data", array(24), $before);
 assert(count($rows) == 1);
+
+// insert/delete billing
+$before = time() - 1;
+$pid = 1000;
+while ($query->count("billing", array('pid' => $pid)) != 0)
+    $pid++;
+assert($query->upsert("billing", array("pid" => $pid, "payer_id" => 1234, "bill_process" => 0, "notecodes" => "tf")));
+assert($query->count("billing", array("pid" => $pid)) == 1);
+$select = $query->selectPrimaries("billing", array($pid), $before);
+assert(count($select) > 0);
+assert(count($select) == 1);
+assert($query->delete("billing", array("pid" => $pid)));
+assert($query->count("billing", array("pid" => $pid)) == 0);
+
 
 // upsert/count/delete form_camos
 $pid = 1000;
@@ -92,4 +112,4 @@ assert($query->count('form_camos', array('pid' => $pid)) == 1);
 $query->delete('form_camos', array('pid' => $pid));
 assert($query->count('form_camos', array('pid' => $pid)) == 0);
 
-echo "Passed all tests";
+echo "Passed EasyQueryTest<br/>";

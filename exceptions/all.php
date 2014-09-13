@@ -60,11 +60,13 @@ class BadQueryException extends ArogitaSyncException
 {
     public $where;
     public $code = 103;
+    public $count;
 
-    public function __construct($where)
+    public function __construct($where, $count)
     {
+        $this->count = $count;
         $this->where = $where;
-        $message = "BadQueryException: Where condition yielded more than one result";
+        $message = "BadQueryException: Where condition must yield 1 result. Current query yields $count results";
         parent::__construct($message, $this->code);
     }
 }
@@ -113,7 +115,7 @@ class BadUnitFieldException extends ArogitaSyncException
     public function __construct($field)
     {
         $this->field = $field;
-        $message = "BadUnitFieldException: '$field' contains an ususable value";
+        $message = "BadUnitFieldException: '$field' contains an unusable value";
         parent::__construct($message, $this->code);
     }
 }
@@ -152,4 +154,19 @@ class LastSyncValueException extends ArogitaSyncException {
         $message = "LasySyncValueException: last_sync value should be in seconds since the Unix epoch, not milliseconds";
         parent::__construct($message, $this->code);
     }
+}
+
+
+class NoPrimaryKeyFieldException extends ArogitaSyncException
+{
+    public $code = 114;
+    public $table;
+
+    public function __construct($table)
+    {
+        $this->table = $table;
+        $message = "NoPrimaryKeyFieldException: No primary key field found in '$table'";
+        parent::__construct($message, $this->code);
+    }
+
 }

@@ -46,16 +46,17 @@ class UnitHandler
             return $this->query->delete($unit['table'], $unit['where']);
     }
 
-    private function executeInitialPull ($unit)
+    private function executePull ($unit)
     {
+        $this->validator->validateUnit($unit);
         $tables = $this->mapper->getTablesWithPid();
         $pull_rows = array();
         foreach ($tables as $table) {
-            $primary_field = $this->mapper->getPrimaryKeyField($table);
-            if ($primary_field == null)
+            try {
+                $rows = $this->query->selectPrimaries($table, $unit['patients'], $unit['last_sync']);
+            } catch (NoPrimaryKeyFieldException $e) {
                 continue;
-
-            $rows = $this->query->selectPrimaries($table, $unit['patients'], $unit['last_sync']);
+            }
             foreach ($rows as $row) {
                 $pull_unit = array('table' => $table, 'operation' => 'upsert', 'fields' => array());
                 foreach ($row as $field => $value) {

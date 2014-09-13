@@ -54,8 +54,9 @@ class FieldMapper
     {
         $columns = $this->getFields($table);
         $required_cols = array();
+        $auto_fields = array($this->getAutoIncrementField($table), $this->getAutoUpdateField($table));
         foreach ($columns as $coldata) {
-            if ($coldata['Null'] == "NO" && strpos($coldata['Extra'], 'auto_increment') === false)
+            if ($coldata['Null'] == "NO" && !in_array($coldata['Field'], $auto_fields))
                 array_push($required_cols, $coldata['Field']);
         }
         return $required_cols;

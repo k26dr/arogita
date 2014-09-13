@@ -48,12 +48,17 @@ class FieldValidator
         $this->validateTable($table);
         if ($this->mapper->getAutoUpdateField($table) == null)
             throw new NoAutoUpdateFieldException($table);
+        if ($this->mapper->getPrimaryKeyField($table) == null)
+            throw new NoPrimaryKeyFieldException($table);
+        if (!gettype($patients) == 'array')
+            throw new BadUnitFieldException('patient_ids');
     }
 
-    public function validateSelectFields ($table, $patient_ids, $last_sync) {
+    public function validateSelectFields ($table, $where) {
         $this->validateTable($table);
-        if (!gettype($patient_ids) == 'array')
-            throw new BadUnitFieldException('patient_ids');
+        $primary = $this->mapper->getPrimaryKeyField($table);
+        if (!in_array($primary, array_keys($where)))
+            throw new MissingFieldException($primary);
     }
 
     private function validateTable($table)
@@ -74,9 +79,11 @@ class FieldValidator
     private function validateRequiredFields($table, $fields)
     {
         $required_fields = $this->mapper->getRequiredFields($table);
-        foreach ($required_fields as $field => $value) {
-            if (!in_array($field, $fields))
-                throw new MissingFieldException($field);
+        if (!in_array('pid', $required_fields))
+            array_push($required_fields, 'pid');
+        foreach ($required_fields as $required) {
+            if (!in_array($required, array_keys($fields)))
+                throw new MissingFieldException($required);
         }
     }
 

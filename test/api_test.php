@@ -43,16 +43,24 @@ function test1 () {
             table: 'billing',
             operation: 'upsert',
             fields: {
-                payer_id: 1232,
+                payer_id: 1235,
                 pid: 1000,
                 bill_process: 0,
                 notecodes: "tf"
             }
         },
         {
+            sync: 'push',
+            table: 'billing',
+            operation: 'delete',
+            where: {
+                pid: 1000
+            }
+        },
+        {
             sync: 'pull',
             patients: [24, 26, 27],
-            last_sync: new Date().getTime() / 1000 - 100000
+            last_sync: 0
         }
     ];
     $.post(url, JSON.stringify(data)).always(function(r) {

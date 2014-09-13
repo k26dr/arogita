@@ -6,6 +6,8 @@
  * Time: 9:45 PM
  */
 
+echo "<br/>UnitHandlerTest<br/>";
+
 require_once("../UnitHandler.php");
 require_once("../UnitValidator.php");
 require_once("../EasyQuery.php");
@@ -46,9 +48,31 @@ $unit = array('sync' => 'push', 'operation' => 'delete', 'table' => 'form_camos'
 assert($handler->execute($unit));
 assert($query->count('form_camos', array('pid' => $pid)) == 0);
 
+// upsert/pull/delete billing
+$pid = 1000;
+do { // get an unused pid
+    $pid++;
+    $pull_unit= array('sync'=> 'pull', 'patients' => array($pid), 'last_sync' => 0);
+    $pull = $handler->execute($pull_unit);
+} while (count($pull['updates']) != 0);
+$before = time() - 1;
+$unit = array('sync' => 'push', 'operation' => 'upsert', 'table' => 'billing', 'fields' =>
+    array('pid' => $pid, 'payer_id' => 1235, 'bill_process' => 0, 'notecodes' => 'tf'));
+assert($handler->execute($unit));
+assert($query->count('billing', array("pid" => $pid)) == 1);
+$pull_unit= array('sync'=> 'pull', 'patients' => array($pid), 'last_sync' => $before);
+$pull = $handler->execute($pull_unit);
+assert(count($pull['updates']) == 1);
+$unit = array('sync' => 'push', 'operation' => 'delete', 'table' => 'billing', 'where' => array('pid' => $pid));
+assert($handler->execute($unit));
+assert($query->count('billing', array("pid" => $pid)) == 0);
+$pull = $handler->execute($pull_unit);
+assert(count($pull['updates']) == 0);
+
 // initialPull
 $unit = array('sync' => 'pull', 'last_sync' => 0, 'patients' => array(24, 25, 26));
-$pull = $handler->initialPull($unit);
+$pull = $handler->execute($unit);
+assert(count($pull['updates']) > 0);
 assert(isset($pull['updates']));
 foreach ($pull['updates'] as $row) {
     assert(count($row['fields']) == 1);
@@ -64,4 +88,4 @@ foreach($expanded['updates'] as $unit) {
 
 
 
-echo "Passed all tests";
+echo "Passed UnitHandlerTest<br/>";

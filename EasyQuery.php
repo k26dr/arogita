@@ -40,8 +40,9 @@ class EasyQuery {
 
         // see if it's valid for update
         $this->validator->validateUpdateFields($table, $fields, $where);
-        if ($this->count($table, $where) != 1)
-            throw new BadQueryException($where);
+        $count = $this->count($table, $where);
+        if ($count != 1)
+            throw new BadQueryException($where, $count);
 
         // update query
         return $this->constructQuery($table, $where)->update($fields);
@@ -53,8 +54,9 @@ class EasyQuery {
     // @throws MissingFieldException
     public function delete ($table, array $where) {
         $this->validator->validateDeleteFields($table, $where);
-        if ($this->count($table, $where) > 1)
-            throw new BadQueryException($where);
+        $count = $this->count($table, $where);
+        if ($count > 1)
+            throw new BadQueryException($where, $count);
         return $this->constructQuery($table, $where)->delete();
     }
 
@@ -89,6 +91,7 @@ class EasyQuery {
     }
 
     public function select ($table, $where) {
+        $this->validator->validateSelectFields($table, $where);
         return $this->constructQuery($table, $where)->get();
     }
 

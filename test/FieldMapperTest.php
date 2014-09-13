@@ -6,6 +6,8 @@
  * Time: 11:47 AM
  */
 
+echo "<br/>FieldMapperTest<br/>";
+
 require_once("../FieldMapper.php");
 require("../database.php");
 require("helpers.php");
@@ -34,7 +36,7 @@ assertException('$mapper->getRequiredFields("gummybear")', 102);
 assertInArray($mapper->getRequiredFields("patient_data"),
     array('pid', 'city', 'state', 'country_code', 'sex', 'referrer', 'hipaa_voice'));
 assertNotInArray($mapper->getRequiredFields("patient_data"),
-    array('id', 'DOB', 'financial_review', 'date', 'providerId'));
+    array('id', 'DOB', 'financial_review', 'date', 'providerId', 'updated_on'));
 
 // getAutoUpdateField
 assert($mapper->getAutoUpdateField('lists') == "modifydate");
@@ -65,4 +67,4 @@ assert($mapper->getPrimaryKeyField("patient_data") == 'pid');
 assert($mapper->getPrimaryKeyField("drugs") == 'drug_id');
 assert($mapper->getPrimaryKeyField("amc_misc_data") == null);
 
-echo "<br />Tests Completed";
+echo "Passed FieldMapperTest<br/>";

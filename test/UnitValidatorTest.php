@@ -6,6 +6,8 @@
  * Time: 7:11 PM
  */
 
+echo "<br/>UnitValidatorTest<br/>";
+
 require_once("../UnitValidator.php");
 require_once("helpers.php");
 
@@ -27,7 +29,7 @@ assert($validator->validateUnit($unit));
 $unit = array('sync' => 'pull', 'patients' => array(24, 26), 'last_sync' => time() * 1000);
 assertException('$validator->validateUnit($unit)', 113);
 $unit = array('sync' => 'pull', 'patients' => array(), 'last_sync' => time());
-assert($validator->validateUnit($unit));
+assertException('$validator->validateUnit($unit)', 111);
 $unit = array('sync' => 'pull', 'last_sync' => time());
 assertException('$validator->validateUnit($unit)', 110);
 
@@ -50,4 +52,4 @@ $unit = array('sync' => 'push', 'operation' => 'delete', 'table' => 'patient_dat
 assertException('$validator->validateUnit($unit)', 110);
 
 
-echo "Passed all tests";
+echo "Passed UnitValidatorTest<br/>";

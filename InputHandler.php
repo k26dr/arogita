@@ -24,7 +24,7 @@ class InputHandler {
         foreach ($units as $i => $unit) {
             if ($unit['sync'] == 'auth') {
                 $auth = $unit;
-                unset($unit[$i]);
+                unset($units[$i]);
                 return $auth;
             }
         }
@@ -35,7 +35,7 @@ class InputHandler {
         foreach ($units as $i => $unit) {
             if ($unit['sync'] == 'pull') {
                 $pull = $unit;
-                unset($unit[$i]);
+                unset($units[$i]);
                 return $pull;
             }
         }

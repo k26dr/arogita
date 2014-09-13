@@ -39,9 +39,10 @@ $response = array('pull' => array(), 'errors' => array());
 
 // auth
 try {
-    $unit_handler->execute($input_handler->popAuth($units));
+    $auth_unit = $input_handler->popAuth($units);
+    $unit_handler->execute($auth_unit);
 } catch (Exception $e) {
-    array_push($response['errors'], $response_units->error($unit, $e));
+    array_push($response['errors'], $response_units->error($auth_unit, $e));
     echo json_encode($response); exit();
 }
 
