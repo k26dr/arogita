@@ -11,21 +11,21 @@ function assertException($statement, $code) {
     $except = false;
     try { eval($statement . ";"); }
     catch (ArogitaSyncException $e) {
-        assert($e->getCode() == $code, "Wrong exception thrown for $statement, expected code $code, found $e->code");
+        assert($e->getCode() == $code);
         $except = true;
     }
-    assert($except, "Exception $code expected, no exception thrown for $statement");
+    assert($except);
 }
 
 function assertInArray($haystack, $needles) {
     foreach($needles as $needle) {
-        assert(in_array($needle, $haystack), "$needle in array");
+        assert(in_array($needle, $haystack));
     }
 }
 
 function assertNotInArray ($haystack, $needles) {
     foreach($needles as $needle) {
-        assert(!in_array($needle, $haystack), "$needle not in array");
+        assert(!in_array($needle, $haystack));
     }
 }
 
