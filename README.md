@@ -16,5 +16,66 @@ Arogita Sync API
   
 **JSON structure**  
   
-  The request JSON is a list of push/pull/auth units to be executed on the database. Each request must contain an auth unit to proceed. Not including a pull unit wil throw a MissingAuthUnitException for the pull action, but will not prevent the push units from executing as long as an auth unit is included.   
+  The request JSON is a list of push/pull/auth units to be executed on the database. Each request must contain an auth unit to proceed. Not including a pull unit will throw a MissingAuthUnitException for the pull action, but will not prevent the push units from executing as long as an auth unit is included. The example request JSON from the api_test.php page is copied below for reference. 
+  
+  
+```
+[
+    {
+        sync: 'auth',
+        user: 'admin',
+        pass: 'NoLongerUsed',
+        client_id: '12321432433'
+    },
+    {
+        sync: 'push',
+        table: 'patient_data',
+        operation: 'upsert',
+        fields: {
+            pid: 24,
+            mname: "hello"
+        }
+    },
+    {
+        sync: 'push',
+        table: 'form_camos',
+        operation: 'upsert',
+        fields: {
+            pid: 1001,
+            user: 'user',
+            groupname: 'teachers'
+        }
+    },
+    {
+        sync: 'push',
+        table: 'form_camos',
+        operation: 'delete',
+        where: {pid: 1001}
+    },
+    {
+        sync: 'push',
+        table: 'billing',
+        operation: 'upsert',
+        fields: {
+            payer_id: 1235,
+            pid: 1000,
+            bill_process: 0,
+            notecodes: "tf"
+        }
+    },
+    {
+        sync: 'push',
+        table: 'billing',
+        operation: 'delete',
+        where: {
+            pid: 1000
+        }
+    },
+    {
+        sync: 'pull',
+        patients: [24, 26, 27],
+        last_sync: 0
+    }
+]
+```
   
