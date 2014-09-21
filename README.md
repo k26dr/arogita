@@ -10,11 +10,11 @@ Arogita Sync API
 5) An example sync request can be found at test/api_test.php. Open the page, then open the console and run the function test1() in the console to see the results of the test. See the source for the proper request structure.   
 
 
-** Usage: **  
+**Usage:**  
   
   The push and pull functionalities of the sync API are implemented seperately. They can be used seperately if desired. The sync endpoint is contained at /api.php. The API is accessed by sending a JSON encoded POST request to the endpoint. For a full example, point your browser to /test/api_test.php and follow the instructions contained there.   
   
-** JSON structure **  
+**JSON structure**  
   
   The request JSON is a list of push/pull/auth units to be executed on the database. Each request must contain an auth unit to proceed. Not including a pull unit wil throw a MissingAuthUnitException for the pull action, but will not prevent the push units from executing as long as an auth unit is included.   
   
