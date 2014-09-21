@@ -12,7 +12,7 @@ Arogita Sync API
 
 **Usage:**  
   
-  The push and pull functionalities of the sync API are implemented seperately. They can be used seperately if desired. The sync endpoint is contained at /api.php. The API is accessed by sending a JSON encoded POST request to the endpoint. For a full example, point your browser to /test/api_test.php and follow the instructions contained there.   
+  The push and pull functionalities of the sync API are implemented seperately. They can be used seperately if desired. The sync endpoint is contained at /api.php. The API is accessed by sending a JSON encoded POST request to the endpoint. For a full example, point your browser to /test/api_test.php and follow the instructions contained there. The example request JSON from the api_test.php page is copied below for reference.   Explanations for the structure of each of the units is contained below the example.
   
 **JSON structure**  
   
