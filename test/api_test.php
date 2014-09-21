@@ -1,4 +1,7 @@
-AJAX testing of the Arogita Sync API
+AJAX testing of the Arogita Sync API <br />
+Open the console (F12) and run the test1() function to see an example run of the API <br />
+Right click and View source for the code
+
 
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 

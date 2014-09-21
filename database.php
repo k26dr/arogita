@@ -16,8 +16,8 @@ $capsule->addConnection(array(
     'driver'    => 'mysql',
     'host'      => 'localhost',
     'database'  => 'arogita',
-    'username'  => 'arogita',
-    'password'  => 'lMhmmZq2etYMvMuy',
+    'username'  => 'root',
+    'password'  => 'can',
     'charset'   => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix'    => ''
