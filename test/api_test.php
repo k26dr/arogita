@@ -19,7 +19,7 @@ function test1 () {
             operation: 'upsert',
             fields: {
                 pid: 24,
-                mname: parseInt(new Date().getTime() / 100000) + "me"
+                mname: "hello"
             }
         },
         {
