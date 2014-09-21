@@ -6,6 +6,8 @@
  * Time: 5:08 PM
  */
 
+ini_set('display_errors',1);  error_reporting(E_ALL);
+
 include "FieldMapperTest.php";
 include "EasyQueryTest.php";
 include "UnitValidatorTest.php";
