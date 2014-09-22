@@ -81,10 +81,11 @@ Arogita Sync API
   
   The request JSON is a list of push/pull/auth units to be executed on the database. Each request must contain an auth unit to proceed. Not including a pull unit will throw a MissingAuthUnitException for the pull action, but will not prevent the push units from executing as long as an auth unit is included. The example request JSON from the api_test.php page is copied below for reference. 
 
-**Sync Unit**
+**Sync Unit:**  
+  
 The request JSON is structured as a series of sync units. Each sync unit must contain the key 'sync', which can take the values of 'push', 'auth', or 'pull'. If an individual non-auth unit returns an error, the remaining units will still be executed. If the auth unit returns an error, execution is aborted.
   
-**Auth Unit**
+**Auth Unit:**
   
   The auth unit must contain the following fields:
   - user: username
@@ -93,7 +94,7 @@ The request JSON is structured as a series of sync units. Each sync unit must co
   
 Authentication is performed against the users table. If you wish to change the database table used for authentication, make the changes in the file /EasyQuery.php in the function EasyQuery::authenticate. If the authentication fails, an error is returned and the remaining units are not evaluated.
   
-**Pull Unit**
+**Pull Unit:**
   
   The pull unit must contain the following fields:
   - patients: an array of database patient ids you would like to pull information for.
@@ -101,12 +102,12 @@ Authentication is performed against the users table. If you wish to change the d
 
   The pull action returns an array of all updates corresponding to 'patients' that occurred after 'last_sync'. The list is similar in structure to the push units. If the 'patients' array is empty, the unit returns an error. If 'last_sync'=0, all database rows corresponding to 'patients' are returned.
   
-**Push Unit**
+**Push Unit:**
   
   The push unit allows the client to push database changes to the server. It must contain the following field:
   - operation: 'upsert' or 'delete', all other values will throw an error
   
-**Push Upsert**
+**Push Upsert:**
   
 The push upsert operation must contain the following fields
 - table: the table must be a valid OpenEMR table and must contain a 'pid' field. A table without a 'pid' field will return an error.
@@ -118,7 +119,7 @@ and has an optional field
   
 The update operation first attempts to perform an insert on the listed table with 'fields'. If the insert fails for any reason (missing required fields, duplicate unique key, etc.), it attempts an update with the specified where fields. If no where field is specified, it uses the 'pid' value from 'fields' as 'where'. You can only update one row at a time, so if the where clause does not yield a unique row, it will throw an error.
   
-**Push Delete**
+**Push Delete:**
   
 The push delete operation must contain the following fields
 - table: the table must be a valid OpenEMR table and must contain a 'pid' field. A table without a 'pid' field will return an error.
